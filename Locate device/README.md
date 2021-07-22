@@ -5,10 +5,10 @@ This allows you to:
 - Display location in a MAP in your browser
 - Display real location address
 
-
+</br>
 **Note that this uses the module Microsoft.Graph.Intune**
 
-
+</br>
 **How to use it ?**
 The script contains the below parameters:
 - Device_Name: type the device name to locate
@@ -16,7 +16,7 @@ The script contains the below parameters:
 - MAP: switch to display location in a Map in your browser
 - Address: switch to display exact address in PowerShell
 
-
+</br>
 **Display basic location**
 </br>
 This will get location of a device and display basic info in PowerShell.
