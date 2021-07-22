@@ -15,22 +15,25 @@ The script contains the below parameters:
 - Address: switch to display exact address in PowerShell
 
 **Display basic location**
-
+</br>
 This will get location of a device and display basic info in PowerShell.
 </br>
 See the command to use: Invoke_LocateDevice.ps1 -Device_Name "TEST"
 
 **Display location in a MAP**
-
+</br>
 This will get location of a device and display it in a MAP in your browser.
+</br>
 See the command to use: Invoke_LocateDevice.ps1 -Device_Name "TEST"
 
 **Get last location**
-
+</br>
 This will get the last location of a device and display it in a MAP in your browser.
+</br>
 See the command to use: Invoke_LocateDevice.ps1 -Device_Name "TEST" -LastLocation -MAP
 
 **Display address**
-
+</br>
 This will get the last location of a device and display it in a MAP in your browser.
+</br>
 See the command to use: Invoke_LocateDevice.ps1 -Device_Name "TEST" -Address
