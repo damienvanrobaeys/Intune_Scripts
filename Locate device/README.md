@@ -1,21 +1,15 @@
-# Run in Sandbox: a quick way to test EXE, PS1, VBS, MSI in Windows Sandbox
-This allows you to do the below things in Windows Sandbox **just from a right-click** by adding context menus:
-- Run PS1, VBS, EXE, MSI in the Sandbox
-- Extract ZIP directly in the Sandbox
-- Share a specific folder in the Sandbox
+# Invoke_LocateDevice.ps1
+This allows you to:
+- Locate an Intune device
+- Display last location
+- Display location in a MAP in your browser
+- Display real location address
 
-> *View the full blog post here*
-http://www.systanddeploy.com/2019/06/run-file-in-windows-sandbox-from-right.html
+**Note that this uses the module Microsoft.Graph.Intune**
 
-
-**Note that this project has been build on personal time, it's not a professional project. Use it at your own risk, and please read How to install it before running it.**
-
-**How to install it ?**
-- Download the ZIP Run-in-Sandbox project (this is the main prerequiste)
-- Extract the ZIP
-- The Run-in-Sandbox-master **should contain** at least Add_Structure.ps1  and a Sources folder
-- Please **don't not download only** Add_Structure.ps1
-- The Sources folder **should contain** folder Run_in_Sandbox containing 16 files
-- Once you have downloaded the folder structure, **check if files have not be blocked after download**
-- Do a right-click on Add_Structure.ps1 and check if needed check Unblocked
-- Run Add_Structure.ps1 **with admin rights**
+**How to use it ?**
+The script contains the below parameters:
+- Device_Name: type the device name to locate
+- LastLocation: switch used to display the last location
+- MAP: switch to display location in a Map in your browser
+- Address: switch to display exact address in PowerShell
