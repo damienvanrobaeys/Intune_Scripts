@@ -5,7 +5,12 @@ This allows you to:
 - Display location in a MAP in your browser
 - Display real location address
 
-**Note that this uses the module Microsoft.Graph.Intune**
+
+**Things to notice**
+- The script uses the module Microsoft.Graph.Intune
+- Getting location of a device can take a while
+- Displaying real  address may display an error if you use it multiple times, just try later in this case
+
 
 **How to use it ?**
 The script contains the below parameters:
