@@ -17,6 +17,7 @@ The script contains the below parameters:
 **Display basic location**
 
 This will get location of a device and display basic info in PowerShell.
+</br>
 See the command to use: Invoke_LocateDevice.ps1 -Device_Name "TEST"
 
 **Display location in a MAP**
