@@ -5,7 +5,9 @@ This allows you to:
 - Display location in a MAP in your browser
 - Display real location address
 
+
 **Note that this uses the module Microsoft.Graph.Intune**
+
 
 **How to use it ?**
 The script contains the below parameters:
@@ -13,6 +15,7 @@ The script contains the below parameters:
 - LastLocation: switch used to display the last location
 - MAP: switch to display location in a Map in your browser
 - Address: switch to display exact address in PowerShell
+
 
 **Display basic location**
 </br>
