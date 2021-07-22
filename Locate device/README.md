@@ -4,7 +4,7 @@ This allows you to:
 - Display last location
 - Display location in a MAP in your browser
 - Display real location address
-
+</br></br></br></br>
 **Note that this uses the module Microsoft.Graph.Intune**
 </br></br>
 **How to use it ?**
