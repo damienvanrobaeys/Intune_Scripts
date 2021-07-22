@@ -13,6 +13,7 @@ This allows you to:
 
 
 **How to use it ?**
+</br>
 The script contains the below parameters:
 - Device_Name: type the device name to locate
 - LastLocation: switch used to display the last location
