@@ -7,7 +7,8 @@ This allows you to:
 
 
 **Things to notice**
-- The script uses the module Microsoft.Graph.Intune
+- There are two folers depending of the module you use
+- The script uses the module Microsoft.Graph.Intune or MSAL.PS
 - Getting location of a device can take a while
 - Displaying real  address may display an error if you use it multiple times, just try later in this case
 
