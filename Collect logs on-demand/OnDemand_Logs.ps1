@@ -36,6 +36,114 @@ Function Write_Log
 	}
 
 
+Function Get_DeviceUpTime
+	{
+		param(
+		[Switch]$Show_Days,
+		[Switch]$Show_Uptime			
+		)		
+		
+		$Last_reboot = Get-ciminstance Win32_OperatingSystem | Select -Exp LastBootUpTime
+		$Check_FastBoot = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -ea silentlycontinue).HiberbootEnabled 
+		If(($Check_FastBoot -eq $null) -or ($Check_FastBoot -eq 0))
+			{
+				$Boot_Event = Get-WinEvent -ProviderName 'Microsoft-Windows-Kernel-Boot'| where {$_.ID -eq 27 -and $_.message -like "*0x0*"}
+				If($Boot_Event -ne $null)
+					{
+						$Last_boot = $Boot_Event[0].TimeCreated
+					}
+			}
+		ElseIf($Check_FastBoot -eq 1)
+			{
+				$Boot_Event = Get-WinEvent -ProviderName 'Microsoft-Windows-Kernel-Boot'| where {$_.ID -eq 27 -and $_.message -like "*0x1*"}
+				If($Boot_Event -ne $null)
+					{
+						$Last_boot = $Boot_Event[0].TimeCreated
+					}
+			}		
+			
+		If($Last_boot -eq $null)
+			{
+				$Uptime = $Uptime = $Last_reboot
+			}
+		Else
+			{
+				If($Last_reboot -ge $Last_boot)
+					{
+						$Uptime = $Last_reboot
+					}
+				Else
+					{
+						$Uptime = $Last_boot
+					}
+			}
+		
+		If($Show_Days)
+			{
+				$Current_Date = get-date
+				$Diff_boot_time = $Current_Date - $Uptime
+				$Boot_Uptime_Days = $Diff_boot_time.Days	
+				$Real_Uptime = $Boot_Uptime_Days
+			}
+		ElseIf($Show_Uptime)
+			{
+				$Real_Uptime = $Uptime
+				
+			}
+		ElseIf(($Show_Days -eq $False) -and ($Show_Uptime -eq $False))
+			{
+				$Real_Uptime = $Uptime				
+			}			
+		Return "$Real_Uptime"
+	}
+	
+function Get-NetworkStatistics
+{
+ $properties = 'Protocol','LocalAddress','LocalPort'
+ $properties += 'RemoteAddress','RemotePort','State','ProcessName','PID'
+
+ netstat -ano | Select-String -Pattern '\s+(TCP|UDP)' | ForEach-Object {
+
+ $item = $_.line.split(" ",[System.StringSplitOptions]::RemoveEmptyEntries)
+
+ if($item[1] -notmatch '^\[::')
+ {
+ if (($la = $item[1] -as [ipaddress]).AddressFamily -eq 'InterNetworkV6')
+ {
+ $localAddress = $la.IPAddressToString
+ $localPort = $item[1].split('\]:')[-1]
+ }
+ else
+ {
+ $localAddress = $item[1].split(':')[0]
+ $localPort = $item[1].split(':')[-1]
+ }
+
+ if (($ra = $item[2] -as [ipaddress]).AddressFamily -eq 'InterNetworkV6')
+ {
+ $remoteAddress = $ra.IPAddressToString
+ $remotePort = $item[2].split('\]:')[-1]
+ }
+ else
+ {
+ $remoteAddress = $item[2].split(':')[0]
+ $remotePort = $item[2].split(':')[-1]
+ }
+
+New-Object PSObject -Property @{
+ PID = $item[-1]
+ ProcessName = (Get-Process -Id $item[-1] -ErrorAction SilentlyContinue).Name
+ Protocol = $item[0]
+ LocalAddress = $localAddress
+ LocalPort = $localPort
+ RemoteAddress =$remoteAddress
+ RemotePort = $remotePort
+ State = if($item[0] -eq 'tcp') {$item[3]} else {$null}
+ } |Select-Object -Property $properties
+ }
+ }
+}	
+
 If($XML_OnBlob -eq $True)
 	{
 		Try
@@ -60,7 +168,6 @@ $Contentto_Collect_XML = @"
 	<Folders>
 		<Folder_Path>C:\ProgramData\Microsoft\IntuneManagementExtension</Folder_Path>
 		<Folder_Path>C:\Windows\debug</Folder_Path>	
-		<Folder_Path>C:\ProgramData\GRTgaz\Debug</Folder_Path>			
 		<Folder_Path>C:\Windows\Logs</Folder_Path>	
 		<Folder_Path>C:\Windows\ccmsetup</Folder_Path>	
 		<Folder_Path>C:\Windows\Panther</Folder_Path>	
@@ -77,11 +184,46 @@ $Contentto_Collect_XML = @"
 			<Event_Name>Application</Event_Name>
 			<Event_Path>Application</Event_Path>			
 		</Event_Log>
+
+		<Event_Log>
+			<Event_Name>Installation</Event_Name>
+			<Event_Path>Installation</Event_Path>			
+		</Event_Log>	
 		
 		<Event_Log>
-			<Event_Name>Umbrella Roaming Security Module</Event_Name>
-			<Event_Path>Cisco AnyConnect Umbrella Roaming Security Module</Event_Path>			
-		</Event_Log>
+			<Event_Name>Security</Event_Name>
+			<Event_Path>Security</Event_Path>			
+		</Event_Log>		
+		
+		<Event_Log>
+			<Event_Name>CodeIntegrity</Event_Name>
+			<Event_Path>Microsoft-Windows-CodeIntegrity/Operational</Event_Path>			
+		</Event_Log>		
+				
+		<Event_Log>
+			<Event_Name>CodeIntegrity</Event_Name>
+			<Event_Path>Microsoft-Windows-CodeIntegrity/Operational</Event_Path>			
+		</Event_Log>		
+		
+		<Event_Log>
+			<Event_Name>AppLocker_MSI</Event_Name>
+			<Event_Path>Microsoft-Windows-AppLocker/MSI and Script</Event_Path>			
+		</Event_Log>			
+		
+		<Event_Log>
+			<Event_Name>AppLocker_EXE</Event_Name>
+			<Event_Path>Microsoft-Windows-AppLocker/EXE and DLL</Event_Path>			
+		</Event_Log>	
+
+		<Event_Log>
+			<Event_Name>DHCP_Admin</Event_Name>
+			<Event_Path>Microsoft-Windows-Dhcp-Client/Admin</Event_Path>			
+		</Event_Log>		
+		
+		<Event_Log>
+			<Event_Name>DHCP_Operational</Event_Name>
+			<Event_Path>Microsoft-Windows-Dhcp-Client/Operational</Event_Path>			
+		</Event_Log>			
 
 		<Event_Log>
 			<Event_Name>Wired-AutoConfig</Event_Name>
@@ -366,22 +508,84 @@ Add-content $Log_File "---------------------------------------------------------
 $CompName = $env:computername
 $Device_Infos_Folder = "C:\Windows\temp\Device_Logs_From_$CompName\Infos du poste"
 
+# Getting hotfix
 $Hotfix_CSV = "$Device_Infos\Hotfix_List.csv"
 $Hotfix_list = Get-wmiobject win32_quickfixengineering | Select-Object hotfixid, Description, Caption, InstalledOn  | Sort-Object InstalledOn 
 $Hotfix_list | export-CSV $Hotfix_CSV -delimiter ";" -notypeinformation	
 
+# Getting services
 $Services_CSV = "$Device_Infos\Services_List.csv"
 $services_List = Get-wmiobject win32_service | Select-Object Name, Caption, State, Startmode
 $services_List | export-CSV $Services_CSV -delimiter ";" -notypeinformation	
 
+# Getting services
 $Drivers_CSV = "$Device_Infos\Drivers_List.csv"
 $Drivers_List = gwmi Win32_PnPSignedDriver | Select-Object devicename, manufacturer, driverversion, infname, IsSigned | where-object {$_.devicename -ne $null -and $_.infname -ne $null} | sort-object devicename -Unique 			
 $Drivers_List | export-CSV $Drivers_CSV -delimiter ";" -notypeinformation	
 	
+# Getting scheduled task	
+$ScheduledTask_CSV = "$Device_Infos\Scheduled_Task.csv"
+$ScheduledTask_List = Get-ScheduledTask | select TaskName, TaskPath, State
+$ScheduledTask_List | export-CSV $ScheduledTask_CSV -delimiter ";" -notypeinformation		
+
+# Getting process	
 $Process_CSV = "$Device_Infos\Process_List.csv"
 $Process_List = gwmi win32_process | select ProcessName, caption, CommandLine, path, CreationDate, Description, ExecutablePath, Name, ProcessID, SessionID	
 $Process_List | export-CSV $Process_CSV -delimiter ";" -notypeinformation	
 
+# Getting printers
+$Printers_CSV = "$Device_Infos\Printers_List.csv"
+$Get_Printers = get-printer | select Name,Type,DriverName,PortName
+$Get_Printers | export-CSV $Printers_CSV -delimiter ";" -notypeinformation			
+
+# Getting network adapters
+$NetAdapters_CSV = "$Device_Infos\NetAdapters_List.csv"
+$Get_NetAdapters = Get-NetAdapter | select Name,InterfaceDescription,ifIndex,Status,MacAddress,LinkSpeed
+$Get_NetAdapters | export-csv $NetAdapters_CSV -notype -delimiter ";" -force		
+
+# Getting processors
+$Processors_CSV = "$Device_Infos\Processors_List.csv"
+$Get_Processors = Get-ciminstance Win32_Processor
+$Get_Processors | export-csv $Processors_CSV -notype -delimiter ";" -force
+
+# Gettings missing drivers
+$MissingDrivers_CSV = "$Device_Infos\Missing_Drivers_List.csv"
+$Get_MissingDrivers = Get-WmiObject Win32_PNPEntity | Where-Object {$_.ConfigManagerErrorCode -eq 28 }
+$Get_MissingDrivers | export-csv $MissingDrivers_CSV -notype -delimiter ";" -force
+
+# Getting MpPreference
+$MpPreference_CSV = "$Device_Infos\MpPreference_List.csv"
+$Get_MpPreference = Get-MpPreference
+$Get_MpPreference | export-csv $MpPreference_CSV -notype -delimiter ";" -force
+
+# Getting MpComputerStatus
+$MpComputerStatus_CSV = "$Device_Infos\MpComputerStatus_List.csv"
+$Get_MpComputerStatus = Get-MpComputerStatus	
+$Get_MpComputerStatus | export-csv $MpComputerStatus_CSV -notype -delimiter ";" -force
+
+# Getting running processes and their port number
+$NetworkStatistics_CSV = "$Device_Infos\Process_and_ports_List.csv"
+$Get_NetworkStatistics = Get-NetworkStatistics	
+$Get_NetworkStatistics | export-csv $NetworkStatistics_CSV -notype -delimiter ";" -force
+
+# Getting DSregcmd content
+$DsregcmdCSV = "$Device_Infos\DSregcmd.csv"
+$Dsregcmd = New-Object PSObject ; Dsregcmd /status | Where {$_ -match ' : '}|ForEach {$Item = $_.Trim() -split '\s:\s'; $Dsregcmd|Add-Member -MemberType NoteProperty -Name $($Item[0] -replace '[:\s]','') -Value $Item[1] -EA SilentlyContinue}		
+$Dsregcmd | export-csv $DsregcmdCSV -notype -delimiter ";"	
+
+# Getting disk info
+$Get_Disk_info = Get-PhysicalDisk | where {$_.DeviceId -eq 0} 	
+$Get_Disk_info_Details = $Get_Disk_info| Get-StorageReliabilityCounter | select *
+$Get_Disk_info | export-csv "$Device_Infos\Disk_Info.csv" -notype -delimiter ";"
+$Get_Disk_info_Details | export-csv "$Device_Infos\Hard_Disk_Details.csv" -notype -delimiter ";"
+
+# Getting real uptime
+Get_DeviceUpTime | out-file "$Device_Infos\Uptime.txt"
+
+# Getting IP conf
+ipconfig | out-file "$Device_Infos\IP.txt"
+
+# Getting pending updates
 $Pending_Updates_CSV = "$Device_Infos\Pending_Updates.csv"
 $UpdateSession = New-Object -ComObject Microsoft.Update.Session
 $UpdateSearcher = $UpdateSession.CreateupdateSearcher()
@@ -389,11 +593,11 @@ $Updates = @($UpdateSearcher.Search("IsHidden=0 and IsInstalled=0 and Type='Soft
 $Pending_Updates = $Updates  | Select-Object Title, Description, LastdeploymentChangeTime, SupportUrl, Type, RebootRequired 
 $Pending_Updates | export-CSV $Pending_Updates_CSV -delimiter ";" -notypeinformation	
 
-ipconfig | out-file "$Device_Infos\IP.txt"
-
+# Getting installed certificates in device store
 $Cert_machine_CSV = "$Device_Infos\Certificate_Device.csv"
 gci Cert:\LocalMachine -recurse | select Subject, Issuer, Thumbprint, NotBefore, NotAfter | export-CSV $Cert_machine_CSV -delimiter ";" -notypeinformation	
 
+# Getting installed certificates in user store
 $Cert_Users_CSV = "$Device_Infos\Certificate_User.csv"
 gci Cert:\CurrentUser -recurse | select Subject, Issuer, Thumbprint, NotBefore, NotAfter | export-CSV $Cert_Users_CSV -delimiter ";" -notypeinformation		
 	
@@ -489,5 +693,5 @@ If($PnP_Module_Status -eq $True)
 			}	
 	}
 
-# remove-item $Logs_Collect_Folder -Force -Recurse
+remove-item $Logs_Collect_Folder -Force -Recurse
 remove-item $Logs_Collect_Folder_ZIP -Force	
