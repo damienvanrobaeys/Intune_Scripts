@@ -33,7 +33,7 @@ write-host "Device name to locate is: $Device_Name"
 write-host "Looking for the device ID..."
 $Intune_Devices_URL = 'https://graph.microsoft.com/beta/deviceManagement/managedDevices?$filter' + "=contains(deviceName,'$Device_Name')"
 $Get_Device = (Invoke-MgGraphRequest -Uri $Intune_Devices_URL  -Method GET).value
-If($Get_Device -eq $null)
+If($null -eq $Get_Device)
 	{
 		write-warning "Can not find the device $Device_Name"
 		Break
@@ -47,8 +47,8 @@ $URL_locate_action = "https://graph.microsoft.com/v1.0/deviceManagement/managedD
 
 If($UseLastLocation)
 	{
-		$Check_Last_Location_Action = (Invoke-MgGraphRequest -Uri $URL_location  -Method GET).deviceActionResults | where {$_.actionName -eq "locateDevice"}		
-		If($Check_Last_Location_Action -ne $null)
+		$Check_Last_Location_Action = (Invoke-MgGraphRequest -Uri $URL_location  -Method GET).deviceActionResults | Where-Object {$_.actionName -eq "locateDevice"}		
+		If($null -ne $Check_Last_Location_Action)
 			{
 				$Last_Check_Date = $Check_Last_Location_Action.lastUpdatedDateTime
 				$Check_Location = $Check_Last_Location_Action.deviceLocation
@@ -64,16 +64,16 @@ Else
 		Invoke-MgGraphRequest -Uri $url_locate_action -Method POST
 		Do{
 			$Check_Location = (Invoke-MgGraphRequest -Uri $URL_location  -Method GET).deviceActionResults.deviceLocation
-			If($Check_Location -eq $null)
+			If($null -eq $Check_Location)
 				{
 					write-host "Locating the device..."
 					start-sleep 5
 				}
 
-		} Until($Check_Location -ne $null)
+		} Until($null -ne $Check_Location)
 	}
 
-If($Check_Location -ne $null)
+If($null -ne $Check_Location)
 	{
 		$Latitude = $Check_Location.latitude
 		$Longitude = $Check_Location.longitude
