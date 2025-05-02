@@ -5,6 +5,13 @@ param(
 [switch]$Address	
 )
 
+
+# Validate if no parameter is passed
+if (-not $PSBoundParameters.Keys.Count) {
+    Write-Warning "Please specify a parameter."
+    Break
+}
+
 # Prompt credentials
 Connect-MgGraph
 
@@ -91,5 +98,6 @@ If($Check_Location -ne $null)
 			{
 				$Check_Location
 			}
+			
 	}
 
