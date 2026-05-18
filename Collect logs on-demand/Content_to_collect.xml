@@ -1,0 +1,50 @@
+<Content_to_collect>
+	<Folders>
+		<Folder_Path>C:\ProgramData\Microsoft\IntuneManagementExtension</Folder_Path>
+		<Folder_Path>C:\ProgramData\AppSense</Folder_Path>		
+		<Folder_Path>C:\Windows\ServiceState</Folder_Path>		
+		<Folder_Path>C:\Windows\SoftwareDistribution\DataStore\Logs</Folder_Path>		
+		<Folder_Path>C:\Windows\SensorFramework</Folder_Path>		
+		<Folder_Path>C:\Windows\Logs\MeasuredBoot</Folder_Path>		
+		<Folder_Path>C:\Windows\Logs\WindowsUpdate</Folder_Path>		
+		<Folder_Path>C:\Windows\Logs</Folder_Path>	
+		<Folder_Path>C:\Windows\ccmsetup</Folder_Path>	
+		<Folder_Path>C:\Windows\Minidump</Folder_Path>	
+		<Folder_Path>C:\Windows\SoftwareDistribution\ReportingEvents.log</Folder_Path>	
+		<Folder_Path>C:\Windows\Panther\setupact.log</Folder_Path>	
+		<Folder_Path>C:\Windows\Panther\UnattendGC</Folder_Path>	
+		<Folder_Path>C:\Windows\System32\LogFiles	</Folder_Path>	
+	</Folders>	
+	<Reg_Keys>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion</RegistryKey>	
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon</RegistryKey>	
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\CloudExperienceHost</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\DeviceAccess</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\NDUP</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Setup</RegistryKey>
+		<RegistryKey>HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Orchestrator</RegistryKey>		
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\CloudManagedUpdate</RegistryKey>
+		<RegistryKey>HKLM\Software\Microsoft\DeclaredConfiguration\HostOS</RegistryKey>
+		<RegistryKey>HKLM\Software\Microsoft\DeviceInventory</RegistryKey>
+		<RegistryKey>HKLM\Software\Microsoft\Enrollments</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\EPMAgent</RegistryKey>
+		<RegistryKey>HKLM\Software\Microsoft\IntuneManagementExtension</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\PolicyManager\current\device\DeviceHealthMonitoring</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\SystemCertificates\AuthRoot</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Microsoft\Windows Advanced Threat Protection</RegistryKey>
+		<RegistryKey>HKLM\Software\Policies</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\Policies\Microsoft\Windows Advanced Threat Protection</RegistryKey>
+		<RegistryKey>HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall</RegistryKey>
+		<RegistryKey>HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL</RegistryKey>
+		<RegistryKey>HKLM\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\MDM</RegistryKey>
+		<RegistryKey>HKLM\SYSTEM\Setup</RegistryKey>
+		<RegistryKey>HKLM\SYSTEM\Setup\SetupDiag\Results</RegistryKey>		
+	</Reg_Keys>	
+</Content_to_collect>
