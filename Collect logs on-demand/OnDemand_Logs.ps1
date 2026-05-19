@@ -1,4 +1,4 @@
-﻿$Tenant = ""  # tenant name
+$Tenant = ""  # tenant name
 $ClientID = "" # azure app client id 
 $Secret = '' # azure app secret
 $SharePoint_SiteID = ""  # sharepoint site id	
@@ -276,9 +276,7 @@ Function Export_Registry_Values
 Write_Log -Message_Type "INFO" -Message "Starting collecting Intune logs on $CompName"
 
 Add-content $Log_File ""
-Add-content $Log_File "---------------------------------------------------------------------------------------------------------"
-Write_Log -Message_Type "INFO" -Message "Step 1 - Collecting event logs"
-Add-content $Log_File "---------------------------------------------------------------------------------------------------------"		
+Write_Log -Message_Type "INFO" -Message "Collecting event logs"
 $Event_Logs = Get-WinEvent -ListLog *
 ForEach($Log in $Event_Logs) {
     Try{
@@ -296,9 +294,7 @@ ForEach($Log in $Event_Logs) {
 		
 		
 Add-content $Log_File ""
-Add-content $Log_File "---------------------------------------------------------------------------------------------------------"
-Write_Log -Message_Type "INFO" -Message "Step 2 - Copying files and folders"
-Add-content $Log_File "---------------------------------------------------------------------------------------------------------"	
+Write_Log -Message_Type "INFO" -Message "Copying files and folders"
 $Folder_To_Check = $Content_to_collect_XML.Content_to_collect.Folders.Folder_Path
 ForEach($Explorer_Content in $Folder_To_Check)
 	{		
@@ -307,9 +303,7 @@ ForEach($Explorer_Content in $Folder_To_Check)
 	
 
 Add-content $Log_File ""
-Add-content $Log_File "---------------------------------------------------------------------------------------------------------"
-Write_Log -Message_Type "INFO" -Message "Step 3 - Collecting registry keys"
-Add-content $Log_File "---------------------------------------------------------------------------------------------------------"	
+Write_Log -Message_Type "INFO" -Message "Collecting registry keys"
 $Reg_Keys_To_Check = $Content_to_collect_XML.Content_to_collect.Reg_Keys.RegistryKey
 ForEach($Reg in $Reg_Keys_To_Check)
 	{
@@ -324,36 +318,47 @@ ForEach($Reg in $Reg_Keys_To_Check)
 		}			
 	}			
 
-			
-Add-content $Log_File ""
-Add-content $Log_File "---------------------------------------------------------------------------------------------------------"
-Write_Log -Message_Type "INFO" -Message "Step 3 - Collecting other content: services, KB..."
-Add-content $Log_File "---------------------------------------------------------------------------------------------------------"		
-
 # Copy folder Infos du poste
 $CompName = $env:computername
 $Device_Infos_Folder = "C:\Windows\temp\Device_Logs_From_$CompName\Infos du poste"
 
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting other content: services, KB..."
 $Hotfix_CSV = "$Device_Infos\Hotfix_List.csv"
 $Hotfix_list = Get-wmiobject win32_quickfixengineering | Select-Object hotfixid, Description, Caption, InstalledOn  | Sort-Object InstalledOn 
 $Hotfix_list | export-CSV $Hotfix_CSV -delimiter ";" -notypeinformation	
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting Services"
 $Services_CSV = "$Device_Infos\Services_List.csv"
 $services_List = Get-wmiobject win32_service | Select-Object Name, Caption, State, Startmode
 $services_List | export-CSV $Services_CSV -delimiter ";" -notypeinformation	
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting scheduled tasks"
 $ScheduledTask_CSV = "$Device_Infos\Scheduled_Task.csv"
 $ScheduledTask_List = Get-ScheduledTask | select TaskName, TaskPath, State
 $ScheduledTask_List | export-CSV $ScheduledTask_CSV -delimiter ";" -notypeinformation	
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting drivers"
 $Drivers_CSV = "$Device_Infos\Drivers_List.csv"
 $Drivers_List = gwmi Win32_PnPSignedDriver | Select-Object devicename, manufacturer, driverversion, infname, IsSigned | where-object {$_.devicename -ne $null -and $_.infname -ne $null} | sort-object devicename -Unique 			
 $Drivers_List | export-CSV $Drivers_CSV -delimiter ";" -notypeinformation	
-	
+
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting process"
 $Process_CSV = "$Device_Infos\Process_List.csv"
 $Process_List = gwmi win32_process | select ProcessName, caption, CommandLine, path, CreationDate, Description, ExecutablePath, Name, ProcessID, SessionID	
 $Process_List | export-CSV $Process_CSV -delimiter ";" -notypeinformation	
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting pending updates"
 $Pending_Updates_CSV = "$Device_Infos\Pending_Updates.csv"
 $UpdateSession = New-Object -ComObject Microsoft.Update.Session
 $UpdateSearcher = $UpdateSession.CreateupdateSearcher()
@@ -361,50 +366,86 @@ $Updates = @($UpdateSearcher.Search("IsHidden=0 and IsInstalled=0 and Type='Soft
 $Pending_Updates = $Updates  | Select-Object Title, Description, LastdeploymentChangeTime, SupportUrl, Type, RebootRequired 
 $Pending_Updates | export-CSV $Pending_Updates_CSV -delimiter ";" -notypeinformation	
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting disk info"
 $Get_Disk_info = Get-PhysicalDisk | where {$_.DeviceId -eq 0} 	
 $Get_Disk_info_Details = $Get_Disk_info| Get-StorageReliabilityCounter | select *
 $Get_Disk_info | export-csv "$Device_Infos\Disk_Info.csv" -notype -delimiter ";"
 $Get_Disk_info_Details | export-csv "$Device_Infos\Hard_Disk_Details.csv" -notype -delimiter ";"
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting printers"
 $Printers_CSV = "$Device_Infos\Printers_List.csv"
 $Get_Printers = get-printer | select Name,Type,DriverName,PortName
 $Get_Printers | export-CSV $Printers_CSV -delimiter ";" -notypeinformation			
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting net adapters"
 $NetAdapters_CSV = "$Device_Infos\NetAdapters_List.csv"
 $Get_NetAdapters = Get-NetAdapter | select Name,InterfaceDescription,ifIndex,Status,MacAddress,LinkSpeed
 $Get_NetAdapters | export-csv $NetAdapters_CSV -notype -delimiter ";" -force		
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting processors"
 $Processors_CSV = "$Device_Infos\Processors_List.csv"
 $Get_Processors = Get-ciminstance Win32_Processor
 $Get_Processors | export-csv $Processors_CSV -notype -delimiter ";" -force
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting missing drivers"
 $MissingDrivers_CSV = "$Device_Infos\Missing_Drivers_List.csv"
 $Get_MissingDrivers = Get-WmiObject Win32_PNPEntity | Where-Object {$_.ConfigManagerErrorCode -eq 28 }
 $Get_MissingDrivers | export-csv $MissingDrivers_CSV -notype -delimiter ";" -force
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting MpPreference"
 $MpPreference_CSV = "$Device_Infos\MpPreference_List.csv"
 $Get_MpPreference = Get-MpPreference
 $Get_MpPreference | export-csv $MpPreference_CSV -notype -delimiter ";" -force
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting MpComputerStatus"
 $MpComputerStatus_CSV = "$Device_Infos\MpComputerStatus_List.csv"
 $Get_MpComputerStatus = Get-MpComputerStatus	
 $Get_MpComputerStatus | export-csv $MpComputerStatus_CSV -notype -delimiter ";" -force
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting DSregcmd"
 $DsregcmdCSV = "$Device_Infos\DSregcmd.csv"
 $Dsregcmd = New-Object PSObject ; Dsregcmd /status | Where {$_ -match ' : '}|ForEach {$Item = $_.Trim() -split '\s:\s'; $Dsregcmd|Add-Member -MemberType NoteProperty -Name $($Item[0] -replace '[:\s]','') -Value $Item[1] -EA SilentlyContinue}		
 $Dsregcmd | export-csv $DsregcmdCSV -notype -delimiter ";"
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting IP info"
 ipconfig | out-file "$Device_Infos\IP.txt"
 Get_DeviceUpTime | out-file "$Device_Infos\Uptime.txt"
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting device certificates"
 # Getting device certificates
 $Cert_machine_CSV = "$Device_Infos\Certificate_Device.csv"
 gci Cert:\LocalMachine -recurse | select Subject, Issuer, Thumbprint, NotBefore, NotAfter | export-CSV $Cert_machine_CSV -delimiter ";" -notypeinformation	
 
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting user certificates"
 # Getting user certificates
 $Cert_Users_CSV = "$Device_Infos\Certificate_User.csv"
 gci Cert:\CurrentUser -recurse | select Subject, Issuer, Thumbprint, NotBefore, NotAfter | export-CSV $Cert_Users_CSV -delimiter ";" -notypeinformation		
-	
+
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting local admin account(s)"
 # Getting local admin
 $Get_Local_AdminGroup = Gwmi win32_group -Filter "Domain='$env:computername' and SID='S-1-5-32-544'"
 $Get_Local_AdminGroup_Name = $Get_Local_AdminGroup.Name
@@ -413,10 +454,16 @@ $Get_Local_AdminGroup_Members = ([ADSI]"WinNT://./$Get_Local_AdminGroup_Name").p
 }
 $Get_Local_AdminGroup_Members = $Get_Local_AdminGroup_Members -replace "WinNT://",""
 $Get_Local_AdminGroup_Members | out-file "$Device_Infos\Local_Admin.txt"
-	
+
+
 # Getting local user account(s)	
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting local user account(s)"
 get-localuser | select name, description, PasswordLastSet, Enabled | export-CSV "$Device_Infos\Local_User.csv" -delimiter ";" -notypeinformation		
-	
+
+
+Add-content $Log_File ""
+Write_Log -Message_Type "INFO" -Message "Collecting running processes and their port number"
 # Getting running processes and their port number
 $NetworkStatistics_CSV = "$Device_Infos\Process_and_ports_List.csv"
 $Get_NetworkStatistics = Get-NetworkStatistics	
